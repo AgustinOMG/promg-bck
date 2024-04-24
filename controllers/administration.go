@@ -19,6 +19,7 @@ import (
 var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
 var validateUser = validator.New()
 
+// *********************************************************      USERS
 func NewUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -37,7 +38,7 @@ func NewUser() gin.HandlerFunc {
 			return
 		}
 
-		newUserCreated, err := companyCollection.InsertOne(ctx, newUser)
+		newUserCreated, err := userCollection.InsertOne(ctx, newUser)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return
@@ -136,5 +137,56 @@ func DeleteAUser() gin.HandlerFunc {
 		c.JSON(http.StatusOK,
 			responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": userDeleted.DeletedCount}},
 		)
+	}
+}
+
+// *********************************************************      Company
+
+func GetACompany() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		CompanyId := c.GetHeader("CompanyId")
+		var Company models.Company
+		defer cancel()
+
+		objId, _ := primitive.ObjectIDFromHex(CompanyId)
+
+		err := quotesCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&Company)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+			return
+		}
+
+		c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": Company}})
+	}
+}
+
+func UpdateCompany() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		cid := c.GetHeader("cid")
+
+		var updateCompany models.Company
+		defer cancel()
+
+		//validate the request body
+		if err := c.BindJSON(&updateCompany); err != nil {
+			c.JSON(http.StatusBadRequest, responses.PMGResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+			return
+		}
+
+		//use the validator library to validate required fields
+		if validationErr := validateUser.Struct(&updateCompany); validationErr != nil {
+			c.JSON(http.StatusBadRequest, responses.PMGResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}})
+			return
+		}
+
+		userUpdated, err := userCollection.UpdateOne(ctx, bson.M{"cid": cid}, bson.M{"$set": updateCompany})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+			return
+		}
+		c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": userUpdated}})
+
 	}
 }
