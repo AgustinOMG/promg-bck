@@ -32,7 +32,7 @@ func NewClient() gin.HandlerFunc {
 		}
 
 		//use the validator library to validate required fields
-		if validationErr := validateUser.Struct(&newClient); validationErr != nil {
+		if validationErr := validateClient.Struct(&newClient); validationErr != nil {
 			c.JSON(http.StatusBadRequest, responses.PMGResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}})
 			return
 		}
@@ -81,12 +81,12 @@ func UpdateClient() gin.HandlerFunc {
 		}
 
 		//use the validator library to validate required fields
-		if validationErr := validateUser.Struct(&updateClient); validationErr != nil {
+		if validationErr := validateClient.Struct(&updateClient); validationErr != nil {
 			c.JSON(http.StatusBadRequest, responses.PMGResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}})
 			return
 		}
 
-		clientUpdated, err := userCollection.UpdateOne(ctx, bson.M{"cid": cid}, bson.M{"$set": updateClient})
+		clientUpdated, err := clientCollection.UpdateOne(ctx, bson.M{"cid": cid}, bson.M{"$set": updateClient})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return
@@ -104,7 +104,7 @@ func DeleteAClient() gin.HandlerFunc {
 
 		objId, _ := primitive.ObjectIDFromHex(cid)
 
-		clientDeleted, err := userCollection.DeleteOne(ctx, bson.M{"id": objId})
+		clientDeleted, err := clientCollection.DeleteOne(ctx, bson.M{"id": objId})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return
