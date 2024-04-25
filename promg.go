@@ -1,15 +1,21 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"promg/configs"
 	"promg/routes"
 	"time"
 
+	firebase "firebase.google.com/go"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/api/option"
 )
 
 func main() {
 	router := gin.Default()
+
 	router.Use(cors.New(cors.Config{
 		// AllowOrigins:     []string{"https://foo.com"},
 		AllowAllOrigins:  true,
@@ -22,6 +28,20 @@ func main() {
 		//},
 		MaxAge: 12 * time.Hour,
 	}))
+
+	// Initialize Firebase
+	opt := option.WithCredentialsFile("path/to/your/firebase/credentials.json")
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		fmt.Errorf("error initializing app: %v", err)
+	}
+
+	auth, err := app.Auth(context.Background())
+	if err != nil {
+		fmt.Errorf("error getting Auth client: %v", err)
+	}
+
+	router.Use(configs.AuthMiddleware(auth))
 
 	routes.UserRoutes(router)
 	routes.QuotesRoutes(router)

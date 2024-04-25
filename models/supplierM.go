@@ -1,6 +1,6 @@
 package models
 
-type Supploer struct {
+type Supplier struct {
 	CID      string `json:"cid,omitempty" validate:"required"`
 	Name     string `json:"name,omitempty" validate:"required"`
 	Nickname string `json:"nickname,omitempty" validate:"required"`
