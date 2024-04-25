@@ -76,3 +76,11 @@ func UserRoutes(router *gin.Engine) {
 	router.DELETE("/v1/administration/company/users/updateuser", controllers.UpdateUser())
 	router.GET("/v1/administration/company/users/deleteuser", controllers.DeleteAUser()) //add this
 }
+
+func ItemRoutes(router *gin.Engine) {
+	// llamada para la infromacion del usuario
+	router.POST("/v1/administration/company/items/newitem", controllers.Newitem())
+	router.GET("/v1/administration/company/items/getitems", controllers.Getitems())
+	router.DELETE("/v1/administration/company/items/updateitem", controllers.Updateitem())
+	router.GET("/v1/administration/company/items/deleteitem", controllers.DeleteAitem()) //add this
+}
