@@ -64,6 +64,23 @@ func GetAUser() gin.HandlerFunc {
 	}
 }
 
+func CheckUserAccount() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		email := c.GetHeader("email")
+		var user models.User
+		defer cancel()
+
+		err := userCollection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+		println(user.Name)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+			return
+		}
+		c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user.Email}})
+	}
+}
+
 func GetAllStaff() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

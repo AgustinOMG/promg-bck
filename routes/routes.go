@@ -74,7 +74,8 @@ func UserRoutes(router *gin.Engine) {
 	router.GET("/v1/administration/company/users/getuser", controllers.GetAUser())
 	router.PUT("/v1/administration/company/users/getstaff", controllers.GetAllStaff())
 	router.DELETE("/v1/administration/company/users/updateuser", controllers.UpdateUser())
-	router.GET("/v1/administration/company/users/deleteuser", controllers.DeleteAUser()) //add this
+	router.GET("/v1/administration/company/users/deleteuser", controllers.DeleteAUser())
+	router.GET("/v1/administration/access/checkuserstatus", controllers.CheckUserAccount()) //add this
 }
 
 func ItemRoutes(router *gin.Engine) {
