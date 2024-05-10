@@ -72,12 +72,37 @@ func CheckUserAccount() gin.HandlerFunc {
 		defer cancel()
 
 		err := userCollection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
-		println(user.Name)
+
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"status": "none"}})
 			return
 		}
-		c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user.Email}})
+		if user.Status == "registered" {
+			c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"status": "registered"}})
+		}
+		if user.Status == "invited" {
+			c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"status": "invited"}})
+		}
+
+	}
+}
+
+func RegisterUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		uid := c.GetHeader("uid")
+		email := c.GetHeader("email")
+		println(uid)
+		println(email)
+		//var user models.User
+		defer cancel()
+		userRegistered, err := userCollection.UpdateOne(ctx, bson.M{"email": email}, bson.M{"$set": bson.M{"status": "registered", "uid": uid}})
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"status": "none"}})
+			return
+		}
+		c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": userRegistered}})
 	}
 }
 
@@ -90,7 +115,6 @@ func GetAllStaff() gin.HandlerFunc {
 
 		results, err := userCollection.Find(ctx, bson.M{"cid": companyId})
 
-		defer results.Close(ctx)
 		if err = results.All(context.TODO(), &staff); err != nil {
 			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return

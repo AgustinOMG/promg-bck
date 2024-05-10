@@ -10,4 +10,5 @@ type User struct {
 	Department string   `json:"department,omitempty" validate:"required"`
 	Level      string   `json:"level,omitempty" validate:"required"`
 	Photo      string   `json:"photo,omitempty" validate:"required"`
+	Status     string   `json:"status,omitempty" validate:"required"`
 }
