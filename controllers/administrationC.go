@@ -51,11 +51,11 @@ func NewUser() gin.HandlerFunc {
 func GetAUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		userId := c.GetHeader("userId")
+		uid := c.GetHeader("uid")
 		var user models.User
 		defer cancel()
 
-		err := userCollection.FindOne(ctx, bson.M{"uid": userId}).Decode(&user)
+		err := userCollection.FindOne(ctx, bson.M{"uid": uid}).Decode(&user)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return
@@ -186,19 +186,17 @@ func DeleteAUser() gin.HandlerFunc {
 func GetACompany() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		CompanyId := c.GetHeader("CompanyId")
-		var Company models.Company
+		cid := c.GetHeader("cid")
+		var company models.Company
 		defer cancel()
 
-		objId, _ := primitive.ObjectIDFromHex(CompanyId)
-
-		err := quotesCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&Company)
+		err := quotesCollection.FindOne(ctx, bson.M{"cid": cid}).Decode(&company)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return
 		}
 
-		c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": Company}})
+		c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": company}})
 	}
 }
 

@@ -79,6 +79,14 @@ func UserRoutes(router *gin.Engine) {
 	router.POST("/v1/administration/access/registeruser", controllers.RegisterUser()) //add this
 }
 
+func CompanyRoutes(router *gin.Engine) {
+	// llamada para la infromacion del usuario
+
+	router.GET("/v1/administration/company/getcompany", controllers.GetACompany())
+	router.POST("/v1/administration/company/updatecompany", controllers.UpdateCompany())
+
+}
+
 func ItemRoutes(router *gin.Engine) {
 	// llamada para la infromacion del usuario
 	router.POST("/v1/administration/company/items/newitem", controllers.Newitem())
