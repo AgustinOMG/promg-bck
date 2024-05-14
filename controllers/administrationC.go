@@ -6,7 +6,6 @@ import (
 	"promg/configs"
 	"promg/models"
 	"promg/responses"
-
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +16,7 @@ import (
 )
 
 var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
+var companyCollection *mongo.Collection = configs.GetCollection(configs.DB, "company")
 var validateUser = validator.New()
 
 // *********************************************************      USERS
@@ -190,7 +190,7 @@ func GetACompany() gin.HandlerFunc {
 		var company models.Company
 		defer cancel()
 
-		err := quotesCollection.FindOne(ctx, bson.M{"cid": cid}).Decode(&company)
+		err := companyCollection.FindOne(ctx, bson.M{"cid": cid}).Decode(&company)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return
@@ -204,28 +204,61 @@ func UpdateCompany() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		cid := c.GetHeader("cid")
-
-		var updateCompany models.Company
+		var companyData models.Company
 		defer cancel()
 
+		objId, _ := primitive.ObjectIDFromHex(cid)
 		//validate the request body
-		if err := c.BindJSON(&updateCompany); err != nil {
+		if err := c.BindJSON(&companyData); err != nil {
 			c.JSON(http.StatusBadRequest, responses.PMGResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return
 		}
 
 		//use the validator library to validate required fields
-		if validationErr := validateUser.Struct(&updateCompany); validationErr != nil {
+		if validationErr := validateUser.Struct(&companyData); validationErr != nil {
 			c.JSON(http.StatusBadRequest, responses.PMGResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}})
 			return
 		}
 
-		userUpdated, err := userCollection.UpdateOne(ctx, bson.M{"cid": cid}, bson.M{"$set": updateCompany})
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
-			return
+		// Update the company data
+		companyUpdated, err := companyCollection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": companyData})
+
+		// if there is no company with this ID , a new company is created
+
+		if companyUpdated.MatchedCount == 0 {
+			// trasnefer the information from the json to a new variable avoid the cid , as is not needed
+			newCompany := models.NewCompany{
+				Name:    companyData.Name,
+				Rfc:     companyData.Rfc,
+				Street:  companyData.Street,
+				City:    companyData.City,
+				State:   companyData.State,
+				PC:      companyData.PC,
+				LogoUri: companyData.LogoUri,
+				Conf:    companyData.Conf,
+			}
+
+			// insert a new company
+			_, err := companyCollection.InsertOne(ctx, newCompany)
+
+			// compid := newCompanyCreated.InsertedID.(primitive.ObjectID).Hex()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+				return
+			}
+
+			c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": true}})
+
+		} else {
+
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+				return
+			}
+
+			// compid := companyUpdated.UpsertedID.(primitive.ObjectID).Hex()
+			c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": true}})
 		}
-		c.JSON(http.StatusOK, responses.PMGResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": userUpdated}})
 
 	}
 }
