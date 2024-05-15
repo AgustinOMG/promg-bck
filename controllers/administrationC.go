@@ -18,6 +18,7 @@ import (
 var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
 var companyCollection *mongo.Collection = configs.GetCollection(configs.DB, "company")
 var validateUser = validator.New()
+var validateCompany = validator.New()
 
 // *********************************************************      USERS
 func NewUser() gin.HandlerFunc {
@@ -57,6 +58,7 @@ func GetAUser() gin.HandlerFunc {
 
 		err := userCollection.FindOne(ctx, bson.M{"uid": uid}).Decode(&user)
 		if err != nil {
+			println(err.Error())
 			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return
 		}
@@ -187,10 +189,11 @@ func GetACompany() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		cid := c.GetHeader("cid")
+		objId, _ := primitive.ObjectIDFromHex(cid)
 		var company models.Company
 		defer cancel()
-
-		err := companyCollection.FindOne(ctx, bson.M{"cid": cid}).Decode(&company)
+		//TODO necesito cambair la variable de resultado asia generico, extraer el OBject ID y luego pasar esa info al modelos de company y regresar eso
+		err := companyCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&company)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return
@@ -202,48 +205,58 @@ func GetACompany() gin.HandlerFunc {
 
 func UpdateCompany() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		cid := c.GetHeader("cid")
+
+		uid := c.GetHeader("uid")
 		var companyData models.Company
 		defer cancel()
 
-		objId, _ := primitive.ObjectIDFromHex(cid)
 		//validate the request body
-		if err := c.BindJSON(&companyData); err != nil {
+		if err := c.ShouldBindJSON(&companyData); err != nil {
+			println("holaa")
+			println(err.Error())
 			c.JSON(http.StatusBadRequest, responses.PMGResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 			return
 		}
 
 		//use the validator library to validate required fields
-		if validationErr := validateUser.Struct(&companyData); validationErr != nil {
+		if validationErr := validateCompany.Struct(&companyData); validationErr != nil {
 			c.JSON(http.StatusBadRequest, responses.PMGResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}})
 			return
 		}
 
+		objId, _ := primitive.ObjectIDFromHex(companyData.Cid)
 		// Update the company data
-		companyUpdated, err := companyCollection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": companyData})
+		companyUpdated, err := companyCollection.UpdateOne(ctx, bson.M{"_id": objId}, bson.M{"$set": companyData})
 
 		// if there is no company with this ID , a new company is created
 
 		if companyUpdated.MatchedCount == 0 {
 			// trasnefer the information from the json to a new variable avoid the cid , as is not needed
 			newCompany := models.NewCompany{
-				Name:    companyData.Name,
-				Rfc:     companyData.Rfc,
-				Street:  companyData.Street,
-				City:    companyData.City,
-				State:   companyData.State,
-				PC:      companyData.PC,
-				LogoUri: companyData.LogoUri,
-				Conf:    companyData.Conf,
+				Name:   companyData.Name,
+				Rfc:    companyData.Rfc,
+				Street: companyData.Street,
+				City:   companyData.City,
+				State:  companyData.State,
+				PC:     companyData.PC,
+				Logo:   companyData.Logo,
+				Conf:   companyData.Conf,
 			}
 
 			// insert a new company
-			_, err := companyCollection.InsertOne(ctx, newCompany)
-
-			// compid := newCompanyCreated.InsertedID.(primitive.ObjectID).Hex()
+			newCompanyCreated, err := companyCollection.InsertOne(ctx, newCompany)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+				return
+			}
+			comId := newCompanyCreated.InsertedID.(primitive.ObjectID).Hex()
+
+			_, erru := userCollection.UpdateOne(ctx, bson.M{"uid": uid}, bson.M{"$set": bson.M{"company.0": comId}})
+
+			if erru != nil {
+				c.JSON(http.StatusInternalServerError, responses.PMGResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": erru.Error()}})
 				return
 			}
 
