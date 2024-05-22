@@ -72,7 +72,7 @@ func UserRoutes(router *gin.Engine) {
 	// llamada para la infromacion del usuario
 	router.POST("/v1/administration/company/users/newuser", controllers.NewUser())
 	router.GET("/v1/administration/company/users/getuser", controllers.GetAUser())
-	router.PUT("/v1/administration/company/users/getstaff", controllers.GetAllStaff())
+	router.GET("/v1/administration/company/users/getstaff", controllers.GetStaff())
 	router.DELETE("/v1/administration/company/users/updateuser", controllers.UpdateUser())
 	router.GET("/v1/administration/company/users/deleteuser", controllers.DeleteAUser())
 	router.GET("/v1/administration/access/checkuserstatus", controllers.CheckUserAccount())
@@ -89,8 +89,9 @@ func CompanyRoutes(router *gin.Engine) {
 
 func ItemRoutes(router *gin.Engine) {
 	// llamada para la infromacion del usuario
-	router.POST("/v1/administration/company/items/newitem", controllers.Newitem())
-	router.GET("/v1/administration/company/items/getitems", controllers.Getitems())
-	router.DELETE("/v1/administration/company/items/updateitem", controllers.Updateitem())
-	router.GET("/v1/administration/company/items/deleteitem", controllers.DeleteAitem()) //add this
+	// router.POST("/v1/administration/company/items/newitem", controllers.Newitem())
+	// router.GET("/v1/administration/company/items/getitems", controllers.Getitems())
+
+	// router.DELETE("/v1/administration/company/items/updateitem", controllers.Updateitem())
+	// router.GET("/v1/administration/company/items/deleteitem", controllers.DeleteAitem()) //add this
 }

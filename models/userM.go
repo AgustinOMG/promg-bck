@@ -1,14 +1,14 @@
 package models
 
 type User struct {
-	UID        string   `json:"uid,omitempty" validate:"required"`
-	Name       string   `json:"name,omitempty" validate:"required"`
-	Email      string   `json:"email,omitempty" validate:"required"`
-	Company    []string `json:"company,omitempty" validate:"required"`
-	Nickname   string   `json:"nickname,omitempty" validate:"required"`
-	Telephone  string   `json:"telephone,omitempty" validate:"required"`
-	Department string   `json:"department,omitempty" validate:"required"`
-	Level      string   `json:"level,omitempty" validate:"required"`
-	Photo      string   `json:"photo,omitempty" validate:"required"`
-	Status     string   `json:"status,omitempty" validate:"required"`
+	UID        string   `json:"uid" binding:"required"`
+	Name       string   `json:"name" binding:"required"`
+	Email      string   `json:"email" binding:"required"`
+	Company    []string `json:"company" binding:"required"`
+	Nickname   string   `json:"nickname" binding:"required"`
+	Telephone  string   `json:"telephone" binding:"required"`
+	Department string   `json:"department" binding:"required"`
+	Level      string   `json:"level" binding:"required"`
+	Photo      string   `json:"photo" binding:"required"`
+	Status     string   `json:"status" binding:"required"`
 }

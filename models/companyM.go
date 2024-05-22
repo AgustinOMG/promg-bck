@@ -33,3 +33,15 @@ type NewCompany struct {
 	Logo   string `json:"logo" binding:"required"`
 	Conf   Conf   `json:"conf" binding:"required"`
 }
+
+type CompanyDb struct {
+	Cid    string `bson:"_id,omitempty"`
+	Name   string
+	Rfc    string
+	Street string
+	City   string
+	State  string
+	PC     string
+	Logo   string
+	Conf   Conf
+}
