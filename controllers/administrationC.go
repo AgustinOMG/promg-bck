@@ -238,7 +238,7 @@ func GetStaff() gin.HandlerFunc {
 func UpdateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		uid := c.GetHeader("uid")
+
 		var updateUser models.User
 		defer cancel()
 
@@ -254,12 +254,12 @@ func UpdateUser() gin.HandlerFunc {
 			return
 		}
 
-		userUpdated, err := userCollection.UpdateOne(ctx, bson.M{"uid": uid}, bson.M{"$set": updateUser})
+		userUpdated, err := userCollection.UpdateOne(ctx, bson.M{"uid": updateUser.UID}, bson.M{"$set": updateUser})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"data": userUpdated})
+		c.JSON(http.StatusOK, gin.H{"data": userUpdated.MatchedCount})
 
 	}
 }
@@ -270,16 +270,25 @@ func DeleteAUser() gin.HandlerFunc {
 		uid := c.Param("uid")
 		defer cancel()
 
-		app, err := firebase.NewApp(context.Background(), nil)
-		if err != nil {
-			log.Fatalf("error initializing app: %v\n", err)
+		app, errFire := firebase.NewApp(context.Background(), nil)
+		if errFire != nil {
+			log.Fatalf("error initializing app: %v\n", errFire)
 		}
-		//TODO falta inicializar el SDK de firabse se instala en la compu no la app.
 
-		// Delete the user with the specified UID
-		client.DeleteUser(uid)
+		client, errAuth := app.Auth(ctx)
+		if errAuth != nil {
+			println("error Authenticating: %v\n", errAuth.Error())
+
+		}
+
+		errDelete := client.DeleteUser(ctx, uid)
+		if errDelete != nil {
+			println("error deleting user: %v\n", errDelete.Error())
+		}
+		println("Successfully deleted user: %s\n", uid)
 
 		userDeleted, err := userCollection.DeleteOne(ctx, bson.M{"uid": uid})
+
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
 			return
