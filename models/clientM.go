@@ -1,12 +1,12 @@
 package models
 
 type Client struct {
-	CID      string `json:"cid,omitempty" validate:"required"`
-	Name     string `json:"name,omitempty" validate:"required"`
-	Nickname string `json:"nickname,omitempty" validate:"required"`
-	Rfc      string `json:"rfc,omitempty" validate:"required"`
-	Street   string `json:"street,omitempty" validate:"required"`
-	City     string `json:"city,omitempty" validate:"required"`
-	State    string `json:"state,omitempty" validate:"required"`
-	PC       string `json:"pc,omitempty" validate:"required"`
+	CID      string `json:"cid" binding:"required"`
+	Name     string `json:"name" binding:"required"`
+	Nickname string `json:"nickname" binding:"required"`
+	Rfc      string `json:"rfc" binding:"required"`
+	Street   string `json:"street" binding:"required"`
+	City     string `json:"city" binding:"required"`
+	State    string `json:"state" binding:"required"`
+	PC       string `json:"pc" binding:"required"`
 }

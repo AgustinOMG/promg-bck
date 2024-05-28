@@ -81,9 +81,15 @@ func UserRoutes(router *gin.Engine) {
 
 func CompanyRoutes(router *gin.Engine) {
 	// llamada para la infromacion del usuario
-
 	router.GET("/v1/administration/company/getcompany", controllers.GetACompany())
 	router.POST("/v1/administration/company/updatecompany", controllers.UpdateCompany())
+}
+
+func ClientRoutes(router *gin.Engine) {
+	// llamada para la infromacion del usuario
+	router.POST("/v1/clients/newclient", controllers.NewClient())
+	router.GET("/v1/clients/getclients", controllers.GetClients())
+	router.POST("/v1/clients/updateclient", controllers.UpdateClient())
 
 }
 
