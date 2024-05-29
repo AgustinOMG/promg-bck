@@ -10,6 +10,7 @@ type Company struct {
 	PC     string `json:"pc" binding:"required"`
 	Logo   string `json:"logo" binding:"required"`
 	Conf   Conf   `json:"conf" binding:"required"`
+	Id     string `bson:"_id,omitempty"`
 }
 
 type Conf struct {
@@ -35,7 +36,7 @@ type NewCompany struct {
 }
 
 type CompanyDb struct {
-	Cid    string `bson:"_id,omitempty"`
+	Cid    string
 	Name   string
 	Rfc    string
 	Street string
@@ -44,4 +45,5 @@ type CompanyDb struct {
 	PC     string
 	Logo   string
 	Conf   Conf
+	Id     string
 }

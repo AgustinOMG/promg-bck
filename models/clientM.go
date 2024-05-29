@@ -9,4 +9,5 @@ type Client struct {
 	City     string `json:"city" binding:"required"`
 	State    string `json:"state" binding:"required"`
 	PC       string `json:"pc" binding:"required"`
+	Id       string `bson:"_id,omitempty"`
 }

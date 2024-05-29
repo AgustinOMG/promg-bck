@@ -11,4 +11,5 @@ type User struct {
 	Level      string   `json:"level" binding:"required"`
 	Photo      string   `json:"photo" binding:"required"`
 	Status     string   `json:"status" binding:"required"`
+	Id         string   `bson:"_id,omitempty"`
 }

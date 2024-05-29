@@ -9,4 +9,5 @@ type Item struct {
 	BuyingPrice  string `json:"buyingprice,omitempty" validate:"required"`
 	Supplier     string `json:"supplier,omitempty" validate:"required"`
 	CID          string `json:"cid,omitempty" validate:"required"`
+	Id           string `bson:"_id,omitempty"`
 }

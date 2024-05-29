@@ -9,4 +9,5 @@ type Supplier struct {
 	City     string `json:"city,omitempty" validate:"required"`
 	State    string `json:"state,omitempty" validate:"required"`
 	PC       string `json:"pc,omitempty" validate:"required"`
+	Id       string `bson:"_id,omitempty"`
 }

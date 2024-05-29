@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -72,7 +73,7 @@ func GetClients() gin.HandlerFunc {
 func UpdateClient() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-
+		oid := c.GetHeader("oid")
 		var updateClient models.Client
 		defer cancel()
 
@@ -81,8 +82,8 @@ func UpdateClient() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"data": err.Error()})
 			return
 		}
-
-		clientUpdated, err := clientCollection.UpdateOne(ctx, bson.M{"cid": updateClient.CID, "name": updateClient.Name}, bson.M{"$set": updateClient})
+		ObjectId, _ := primitive.ObjectIDFromHex(oid)
+		clientUpdated, err := clientCollection.UpdateOne(ctx, bson.M{"cid": updateClient.CID, "_id": ObjectId}, bson.M{"$set": updateClient})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
 			return

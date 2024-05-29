@@ -7,4 +7,5 @@ type Product struct {
 	Currency    string `json:"currency,omitempty" validate:"required"`
 	Price       string `json:"price,omitempty" validate:"required"`
 	Items       []Item `json:"items,omitempty" validate:"required"`
+	Id          string `bson:"_id,omitempty"`
 }

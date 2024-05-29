@@ -12,7 +12,7 @@ type Quote struct {
 	Description   string `json:"description,omitempty" validate:"required"`
 	PayMethod     string `json:"paymethod,omitempty" validate:"required"`
 	Currency      string `json:"currency,omitempty" validate:"required"`
-	delivery      string `json:"delivery,omitempty" validate:"required"`
+	Delivery      string `json:"delivery,omitempty" validate:"required"`
 	DeliveryUnits string `json:"deliveryunits,omitempty" validate:"required"`
 	Title         string `json:"title,omitempty" validate:"required"`
 	SubTotal      string `json:"subtotal,omitempty" validate:"required"`
@@ -21,4 +21,5 @@ type Quote struct {
 	Comments      string `json:"comments,omitempty" validate:"required"`
 	Seller        string `json:"seller,omitempty" validate:"required"`
 	Regards       string `json:"regards,omitempty" validate:"required"`
+	Id            string `bson:"_id,omitempty"`
 }

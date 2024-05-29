@@ -7,4 +7,5 @@ type QuoteItem struct {
 	MU          string `json:"mu,omitempty" validate:"required"`
 	Amount      string `json:"amount,omitempty" validate:"required"`
 	Price       string `json:"price,omitempty" validate:"required"`
+	Id          string `bson:"_id,omitempty"`
 }
