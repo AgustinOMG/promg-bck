@@ -42,6 +42,7 @@ func main() {
 	routes.QuotesRoutes(router)
 	routes.CompanyRoutes(router)
 	routes.ClientRoutes(router)
+	routes.ItemRoutes(router)
 
 	router.Run("localhost:9876")
 }

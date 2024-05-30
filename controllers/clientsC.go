@@ -25,7 +25,7 @@ func NewClient() gin.HandlerFunc {
 
 		//validate the request body
 		if err := c.ShouldBindJSON(&newClient); err != nil {
-			println(err.Error())
+
 			c.JSON(http.StatusBadRequest, gin.H{"data": err.Error()})
 			return
 		}

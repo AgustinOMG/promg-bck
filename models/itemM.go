@@ -1,13 +1,13 @@
 package models
 
 type Item struct {
-	Code         string `json:"code,omitempty" validate:"required"`
-	Description  string `json:"description,omitempty" validate:"required"`
-	Currency     string `json:"currency,omitempty" validate:"required"`
-	Mu           string `json:"mu,omitempty" validate:"required"`
-	SellingPrice string `json:"sellingprice,omitempty" validate:"required"`
-	BuyingPrice  string `json:"buyingprice,omitempty" validate:"required"`
-	Supplier     string `json:"supplier,omitempty" validate:"required"`
-	CID          string `json:"cid,omitempty" validate:"required"`
-	Id           string `bson:"_id,omitempty"`
+	Code         string  `json:"code" binding:"required"`
+	Description  string  `json:"description" binding:"required"`
+	Currency     string  `json:"currency" binding:"required"`
+	Mu           string  `json:"mu" binding:"required"`
+	SellingPrice float64 `json:"sellingPrice" binding:"required"`
+	BuyingPrice  float64 `json:"buyingPrice" binding:"required"`
+	Supplier     string  `json:"supplier" binding:"required"`
+	CID          string  `json:"cid" binding:"required"`
+	Id           string  `bson:"_id,omitempty"`
 }
