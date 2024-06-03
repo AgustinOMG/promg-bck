@@ -45,7 +45,7 @@ func GetClients() gin.HandlerFunc {
 		cid := c.GetHeader("cid")
 		var clients []models.Client
 		defer cancel()
-		filter := bson.D{{"cid", cid}}
+		filter := bson.D{{Key: "cid", Value: cid}}
 
 		results, err := clientCollection.Find(ctx, filter)
 		if err != nil {
@@ -89,6 +89,29 @@ func UpdateClient() gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"data": clientUpdated.MatchedCount})
+
+	}
+}
+
+func DeleteClient() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		oid := c.GetHeader("oid")
+		cid := c.GetHeader("cid")
+
+		defer cancel()
+
+		ObjectId, _ := primitive.ObjectIDFromHex(oid)
+		deleteResult, err := clientCollection.DeleteOne(ctx, bson.M{"cid": cid, "_id": ObjectId})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
+			return
+		}
+		if deleteResult.DeletedCount != 0 {
+			c.JSON(http.StatusOK, gin.H{"data": true})
+		} else {
+			c.JSON(http.StatusNoContent, gin.H{"data": false})
+		}
 
 	}
 }

@@ -92,3 +92,26 @@ func UpdateItem() gin.HandlerFunc {
 
 	}
 }
+
+func DeleteItem() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		oid := c.GetHeader("oid")
+		cid := c.GetHeader("cid")
+
+		defer cancel()
+
+		ObjectId, _ := primitive.ObjectIDFromHex(oid)
+		deleteResult, err := itemCollection.DeleteOne(ctx, bson.M{"cid": cid, "_id": ObjectId})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
+			return
+		}
+		if deleteResult.DeletedCount != 0 {
+			c.JSON(http.StatusOK, gin.H{"data": true})
+		} else {
+			c.JSON(http.StatusNoContent, gin.H{"data": false})
+		}
+
+	}
+}

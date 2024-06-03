@@ -90,6 +90,7 @@ func ClientRoutes(router *gin.Engine) {
 	router.POST("/v1/clients/newclient", controllers.NewClient())
 	router.GET("/v1/clients/getclients", controllers.GetClients())
 	router.POST("/v1/clients/updateclient", controllers.UpdateClient())
+	router.DELETE("/v1/clients/deleteclient", controllers.DeleteClient())
 
 }
 
@@ -98,5 +99,6 @@ func ItemRoutes(router *gin.Engine) {
 	router.POST("/v1/items/newitem", controllers.NewItem())
 	router.GET("/v1/items/getitems", controllers.GetItem())
 	router.POST("/v1/items/updateitem", controllers.UpdateItem())
+	router.DELETE("/v1/items/deleteitem", controllers.DeleteItem())
 
 }
