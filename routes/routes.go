@@ -94,11 +94,29 @@ func ClientRoutes(router *gin.Engine) {
 
 }
 
+func SupplierRoutes(router *gin.Engine) {
+	// llamada para la infromacion del usuario
+	router.POST("/v1/suppliers/newsupplier", controllers.NewSupplier())
+	router.GET("/v1/suppliers/getsuppliers", controllers.GetSuppliers())
+	router.POST("/v1/suppliers/updatesupplier", controllers.UpdateSupplier())
+	router.DELETE("/v1/suppliers/deletesupplier", controllers.DeleteSupplier())
+
+}
+
 func ItemRoutes(router *gin.Engine) {
 	// llamada para la infromacion del usuario
 	router.POST("/v1/items/newitem", controllers.NewItem())
 	router.GET("/v1/items/getitems", controllers.GetItem())
 	router.POST("/v1/items/updateitem", controllers.UpdateItem())
 	router.DELETE("/v1/items/deleteitem", controllers.DeleteItem())
+
+}
+
+func QuoteRoutes(router *gin.Engine) {
+	// llamada para la infromacion del usuario
+	// router.POST("/v1/quotes/newquote", controllers.NewQuote())
+	router.GET("/v1/sales/quotes/getquotes", controllers.GetQuotes())
+	// router.POST("/v1/quotes/updatequote", controllers.UpdateQuote())
+	// router.DELETE("/v1/quotes/deletequote", controllers.DeleteQuote())
 
 }

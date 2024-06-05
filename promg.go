@@ -39,9 +39,10 @@ func main() {
 	//router.Use(configs.AuthMiddleware(auth))
 
 	routes.UserRoutes(router)
-	routes.QuotesRoutes(router)
+	routes.QuoteRoutes(router)
 	routes.CompanyRoutes(router)
 	routes.ClientRoutes(router)
+	routes.SupplierRoutes(router)
 	routes.ItemRoutes(router)
 
 	router.Run("localhost:9876")
