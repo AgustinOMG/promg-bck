@@ -15,6 +15,30 @@ import (
 
 var quoteCollection *mongo.Collection = configs.GetCollection(configs.DB, "quotes")
 
+// *********************************************************      items
+func NewQuote() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		var newQuote models.Quote
+		defer cancel()
+
+		//validate the request body
+		if err := c.ShouldBindJSON(&newQuote); err != nil {
+			println(err.Error())
+			c.JSON(http.StatusBadRequest, gin.H{"data": err.Error()})
+			return
+		}
+
+		_, err := quoteCollection.InsertOne(ctx, newQuote)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
+			return
+		}
+		//return Success At creation
+		c.JSON(http.StatusCreated, gin.H{"data": "created"})
+	}
+}
+
 func GetQuotes() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

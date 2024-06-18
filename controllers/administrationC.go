@@ -3,13 +3,11 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"promg/configs"
 	"promg/models"
 	"time"
 
-	firebase "firebase.google.com/go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,7 +30,7 @@ func GetACompany() gin.HandlerFunc {
 		var company models.Company
 		var result models.CompanyDb
 		defer cancel()
-		//TODO necesito cambair la variable de resultado asia generico, extraer el OBject ID y luego pasar esa info al modelos de company y regresar eso
+
 		err := companyCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&result)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
@@ -40,6 +38,7 @@ func GetACompany() gin.HandlerFunc {
 		}
 
 		company = models.Company(result)
+		println(company.Conf.QFolio)
 
 		c.JSON(http.StatusOK, gin.H{"data": company})
 	}
@@ -264,6 +263,7 @@ func UpdateUser() gin.HandlerFunc {
 	}
 }
 
+/*
 func DeleteAUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -304,5 +304,33 @@ func DeleteAUser() gin.HandlerFunc {
 		c.JSON(http.StatusOK,
 			gin.H{"data": userDeleted.DeletedCount},
 		)
+	}
+}
+*/
+// *********************************************************      Configuration
+
+func UpdateConfiguration() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+		var updateConf models.Conf
+		cid := c.GetHeader("cid")
+
+		defer cancel()
+
+		//validate the request body
+		if err := c.ShouldBindJSON(&updateConf); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"data": err.Error()})
+			return
+		}
+
+		confUpdated, err := companyCollection.UpdateOne(ctx, bson.M{"cid": cid}, bson.M{"$set": bson.M{"conf": updateConf}})
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"data": confUpdated.MatchedCount})
+
 	}
 }

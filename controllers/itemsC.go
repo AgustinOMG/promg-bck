@@ -29,13 +29,16 @@ func NewItem() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"data": err.Error()})
 			return
 		}
-		_, err := itemCollection.InsertOne(ctx, newItem)
+		newItemResult, err := itemCollection.InsertOne(ctx, newItem)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
 			return
 		}
+
+		stringID, _ := newItemResult.InsertedID.(primitive.ObjectID)
+
 		//return Success At creation
-		c.JSON(http.StatusCreated, gin.H{"data": "created"})
+		c.JSON(http.StatusCreated, gin.H{"data": stringID.Hex()})
 	}
 }
 
