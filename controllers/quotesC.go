@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var quoteCollection *mongo.Collection = configs.GetCollection(configs.DB, "quotes")
@@ -39,7 +40,7 @@ func NewQuote() gin.HandlerFunc {
 			return
 		}
 		//return Success At creation
-		c.JSON(http.StatusCreated, gin.H{"data": "created"})
+		c.JSON(http.StatusCreated, gin.H{"data": newQuote.Folio})
 	}
 }
 
@@ -50,8 +51,9 @@ func GetQuotes() gin.HandlerFunc {
 		var quotes []models.Quote
 		defer cancel()
 		filter := bson.D{{Key: "cid", Value: cid}}
+		opts := options.Find().SetSort(bson.D{{Key: "folio", Value: -1}})
 
-		results, err := quoteCollection.Find(ctx, filter)
+		results, err := quoteCollection.Find(ctx, filter, opts)
 
 		if err != nil {
 			println(err.Error())
@@ -106,6 +108,33 @@ func DeleteQuote() gin.HandlerFunc {
 	}
 }
 
+func CopyQuote() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		var copyQuote models.Quote
+		defer cancel()
+
+		//validate the request body
+		if err := c.ShouldBindJSON(&copyQuote); err != nil {
+			println(err.Error())
+			c.JSON(http.StatusBadRequest, gin.H{"data": err.Error()})
+			return
+		}
+		folio := checkQuoteFolio(copyQuote.CID)
+		copyQuote.Folio = folio + 1
+		_objId, _ := primitive.ObjectIDFromHex(copyQuote.CID)
+		updateFolio(copyQuote.Folio, _objId)
+
+		_, err := quoteCollection.InsertOne(ctx, copyQuote)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
+			return
+		}
+		//return Success At creation
+		c.JSON(http.StatusCreated, gin.H{"data": copyQuote.Folio})
+	}
+}
+
 func checkQuoteFolio(cid string) int {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	objId, _ := primitive.ObjectIDFromHex(cid)
@@ -115,7 +144,7 @@ func checkQuoteFolio(cid string) int {
 
 	err := companyCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&result)
 	if err != nil {
-
+		// TODO implementar LOGS
 	}
 	company = models.Company(result)
 	return company.Conf.QFolio

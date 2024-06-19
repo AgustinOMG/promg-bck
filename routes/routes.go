@@ -58,6 +58,7 @@ func ItemRoutes(router *gin.Engine) {
 func QuoteRoutes(router *gin.Engine) {
 	// llamada para la infromacion del usuario
 	router.POST("/v1/sales/quotes/newquote", controllers.NewQuote())
+	router.POST("/v1/sales/quotes/copyquote", controllers.CopyQuote())
 	router.GET("/v1/sales/quotes/getquotes", controllers.GetQuotes())
 	// router.POST("/v1/quotes/updatequote", controllers.UpdateQuote())
 	router.DELETE("/v1/sales/quotes/deletequote", controllers.DeleteQuote())
