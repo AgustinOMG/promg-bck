@@ -60,6 +60,6 @@ func QuoteRoutes(router *gin.Engine) {
 	router.POST("/v1/sales/quotes/newquote", controllers.NewQuote())
 	router.GET("/v1/sales/quotes/getquotes", controllers.GetQuotes())
 	// router.POST("/v1/quotes/updatequote", controllers.UpdateQuote())
-	// router.DELETE("/v1/quotes/deletequote", controllers.DeleteQuote())
+	router.DELETE("/v1/sales/quotes/deletequote", controllers.DeleteQuote())
 
 }
