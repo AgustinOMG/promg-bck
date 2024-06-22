@@ -85,6 +85,29 @@ func GetQuotes() gin.HandlerFunc {
 	}
 }
 
+func UpdateQuote() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		oid := c.GetHeader("oid")
+		var updateQuote models.Quote
+		defer cancel()
+
+		//validate the request body
+		if err := c.BindJSON(&updateQuote); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"data": err.Error()})
+			return
+		}
+		ObjectId, _ := primitive.ObjectIDFromHex(oid)
+		quoteUpdated, err := quoteCollection.UpdateOne(ctx, bson.M{"cid": updateQuote.CID, "_id": ObjectId}, bson.M{"$set": updateQuote})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"data": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"data": quoteUpdated.MatchedCount})
+
+	}
+}
+
 func DeleteQuote() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
