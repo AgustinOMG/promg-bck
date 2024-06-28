@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	//"fmt"
+	//"net/http"
 	"promg/configs"
 	"promg/models"
 	"time"
@@ -115,6 +117,84 @@ func UpdateCompany() gin.HandlerFunc {
 	}
 }
 
+/*
+func uploadImage(c *gin.Context) {
+	// Get form data (replace "image" with your actual form field name)
+	file, err := c.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error getting file: " + err.Error()})
+		return
+	}
+
+	// Validate file type (optional)
+	if !isValidImageType(file.Header.ContentType) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image type"})
+		return
+	}
+
+	// Generate unique filename (optional, prevents overwrites)
+	filename := generateUniqueFilename(file.Filename)
+
+	// Create upload directory if it doesn't exist
+	err = os.MkdirAll("uploads", os.ModePerm(0755)) // Adjust permissions as needed
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating upload directory: " + err.Error()})
+		return
+	}
+
+	// Save uploaded file
+	filePath := "uploads/" + filename
+	err = c.SaveUploadedFile(file, filePath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error saving file: " + err.Error()})
+		return
+	}
+
+	// Store image path in database (if applicable)
+	if err := storeImagePath(db, filename); err != nil {
+		// Handle database error (e.g., log or return appropriate error)
+	}
+
+	// Return success response
+	c.JSON(http.StatusOK, gin.H{"message": "Image uploaded successfully", "filename": filename})
+}
+
+type UploadRequest struct {
+	Image *multipart.FileHeader `form:"image" binding:"required"`
+}
+
+func isValidImageType(contentType string) bool {
+	allowedTypes := map[string]struct{}{
+		"image/jpeg": {},
+		"image/png":  {},
+		// Add other supported image types
+	}
+	_, ok := allowedTypes[contentType]
+	return ok
+}
+
+func generateUniqueFilename(originalFilename string) string {
+	uuid := uuid.New().String()
+	ext := filepath.Ext(originalFilename)
+	return uuid + ext
+}
+
+func storeImagePath(db *sql.DB, filename string) error {
+	// Implement your prepared statement to store the image path in the database
+	// Prevent SQL injection using prepared statements
+	stmt, err := db.Prepare("INSERT INTO images (filename) VALUES (?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+*/
 // *********************************************************      USERS
 func NewUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
